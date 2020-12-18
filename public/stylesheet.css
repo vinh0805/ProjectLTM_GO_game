@@ -1,0 +1,61 @@
+body {
+    background-color: pink;
+}
+
+#loginForm {
+    margin: auto;
+    margin-top: 50px;
+    padding: 50px 0 70px 0;
+    height: 100px;
+    width: 35%;
+    text-align: center;
+    border: 3px outset gray;
+}
+.form-element {
+    margin: 20px 0 10px 0;
+}
+.form-element-label {
+    font-weight: bold;
+    min-width: 70px;
+}
+
+.room {
+    color: #ffffff;
+    width: 200px;
+    margin: 20px 0px 20px 20px;
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 5px;
+}
+.room:hover {
+    background-color: #ff0066;
+}
+
+#player1 {
+    display: inline-block;
+    float: left;
+}
+#player2 {
+    display: inline-block;
+    float: right;
+}
+
+#leaveRoomButton {
+    margin: auto;
+    display: block;
+    border: 1px solid gray;
+    border-radius: 5px;
+}
+#leaveRoomButton:hover {
+    background-color: #ff0066;
+}
+
+#logoutButton {
+    float: right;
+    display: block;
+    border: 1px solid gray;
+    border-radius: 5px;
+}
+#logoutButton:hover {
+    background-color: #ff0066;
+}

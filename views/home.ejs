@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>GO game</title>
+        <script src="jquery.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="client.js"></script>
+        <link rel="stylesheet" type="text/css" href="stylesheet.css">
+    </head>
+
+    <body>
+        <div id="loginForm">
+            <div class="form-element">
+                <label class="form-element-label">Account: </label>
+                <input type="text" id="account">
+            </div>
+            <div class="form-element">
+                <label class="form-element-label">Password: </label>
+                <input type="password" id="password">
+            </div>
+            <div class="form-element">
+                <input type="button" value="Login" id="loginButton">
+            </div>
+        </div>
+
+        <div id="roomList">
+            <input type="button" id="logoutButton" value="Log out">
+            <h3>Rooms list: </h3>
+            <div id="showRoomList">
+                <div id="room0" class="room" data-room=0 data-number-player=0>Room 0: <span id="roomSpan0">0</span></div>
+                <div id="room1" class="room" data-room=1 data-number-player=0>Room 1: <span id="roomSpan1">0</span></div>
+                <div id="room2" class="room" data-room=2 data-number-player=0>Room 2: <span id="roomSpan2">0</span></div>
+                <div id="room3" class="room" data-room=3 data-number-player=0>Room 3: <span id="roomSpan3">0</span></div>
+                <div id="room4" class="room" data-room=4 data-number-player=0>Room 4: <span id="roomSpan4">0</span></div>
+            </div>
+        </div>
+        <div id="chessboard">
+            <input type="button" id="leaveRoomButton" value="Leave Room">
+            <div id="player1">Player1: <span id="player1Name"></span></div>
+            <div id="player2">Player2: <span id="player2Name"></span></div>
+        </div>
+    </body>
+</html>
