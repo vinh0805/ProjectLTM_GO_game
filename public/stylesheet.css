@@ -59,3 +59,41 @@ body {
 #logoutButton:hover {
     background-color: #ff0066;
 }
+#readyButton {
+    width: 100px;
+    height: 40px;
+    display: block;
+    margin: auto;
+    margin-top: 300px;
+    border-radius: 10px;
+}
+
+body {
+    font-family: 'Open Sans';
+    font-size: 16px;
+    margin-bottom: 100px;
+  }
+  
+  svg {
+    display: block;
+    max-height: 100%;
+  }
+  
+  td {
+    height: 30px;
+    width: 30px;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-bottom: 0px;
+    padding-top: 0px;
+  }
+  
+  /* https://vuejs.org/v2/api/#v-cloak */
+  [v-cloak] {
+    display: none;
+  }
+  
+  .top-buffer {
+    margin-top: 15px;
+  }
+  

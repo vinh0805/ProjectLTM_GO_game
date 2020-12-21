@@ -19,7 +19,7 @@ socket.on("01-SERVER_ROOMS_LIST", function(data){
 
     $("#loginForm").hide(1000);
     $("#roomList").show(500);
-    $("#chessboard").hide();
+    $("#inRoom").hide();
 });
 // login failed
 socket.on("02-SERVER_LOGIN_INCORRECT", function(){
@@ -34,10 +34,10 @@ socket.on("11-SERVER_PLAYERS_IN_ROOM", function(data){
         $("#player2Name").html(data[1]);
     }
 
-    // show chessboard
+    // show inRoom
     $("#loginForm").hide();
     $("#roomList").hide(1000);
-    $("#chessboard").show(500);
+    $("#inRoom").show(500);
 });
 
 // update room list
@@ -50,10 +50,23 @@ socket.on("13-SERVER_UPDATE_ROOMS_LIST", function(data){
     }
 });
 
+// someone ready
+socket.on("21-SERVER_READY", function(data){
+    $(data).show();
+});
+
+// game start
+socket.on("22-SERVER_GAME_START", function(){
+    $("#1Ready").hide();
+    $("#2Ready").hide();
+    $("#readyButton").hide();
+    $("#chessboard").show(500);
+})
+
 socket.on("61-LEAVE-ROOM-SUCCESSFULLY", function(){
     alert("Leave room successfully!");
     $("#loginForm").hide();
-    $("#chessboard").hide(1000);
+    $("#inRoom").hide(1000);
     $("#roomList").show(500);
 });
 
@@ -61,13 +74,13 @@ socket.on("71-SERVER_LOG_OUT_SUCCESSFULLY", function(){
     alert("Log out successfully!");
     $("#roomList").hide(1000);
     $("#loginForm").show(500);
-    $("#chessboard").hide();
+    $("#inRoom").hide();
 });
 
 $(document).ready(function(){
     $("#loginForm").show();
     $("#roomList").hide();
-    $("#chessboard").hide();
+    $("#inRoom").hide();
 
     // login
     $("#loginButton").click(function(){
@@ -99,5 +112,9 @@ $(document).ready(function(){
         if(confirm("Do you want to log out?")) {
             socket.emit("70-CLIENT_LOG_OUT");
         }
+    });
+
+    $("#readyButton").click(function(){
+        socket.emit("20-USER_READY", currentRoom);
     });
 });
