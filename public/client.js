@@ -53,6 +53,13 @@ socket.on("13-SERVER_UPDATE_ROOMS_LIST", function(data){
 // someone ready
 socket.on("21-SERVER_READY", function(data){
     $(data).show();
+    $("#readyButton").val("Unready");
+});
+
+// someone unready
+socket.on("21-SERVER_UNREADY", function(data){
+    $(data).hide(100);
+    $("#readyButton").val("Ready");
 });
 
 // game start

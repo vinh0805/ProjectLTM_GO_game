@@ -11,7 +11,7 @@ const accountList = ['admin1', 'admin2', 'admin3', 'admin4', 'admin5'];
 const passwordList = ['123123', '123123', '123123', '123123', '123123'];
 let accountStatus = [0, 0, 0, 0, 0];
 let roomList = [0, 0, 0, 0, 0];
-let roomStatus = [0, 0, 0, 0, 0];
+let roomStatus = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]];
 let clientInRoom = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
 
 server.listen(3000);
@@ -67,16 +67,29 @@ io.on("connection", function(socket){
 
     // receive that user click ready button
     socket.on("20-USER_READY", function(data){
-        if(roomStatus[data] < 0 || roomStatus[data] >= 2) {
-            console.log("Something wrong!");
-        } else {
-            roomStatus[data] += 1;
-            console.log("roomStatus[]: " + roomStatus);
-            if(roomStatus[data] == 1) {
-                let player = clientInRoom[data][0] == socket.clientName ? '#1Ready' : '#2Ready';
-                io.sockets.in(data).emit("21-SERVER_READY", player);
-            } else if(roomStatus[data] == 2) {
-                io.sockets.in(data).emit("22-SERVER_GAME_START");
+        if(clientInRoom[data][0] == socket.clientName){
+            if(roomStatus[data][0] == 0){
+                roomStatus[data][0] = 1;
+                if(roomStatus[data][1] == 1){
+                    io.sockets.in(data).emit("22-SERVER_GAME_START");    
+                } else {
+                    io.sockets.in(data).emit("21-SERVER_READY", "#1Ready");
+                }
+            } else if(roomStatus[data][0] == 1){
+                roomStatus[data][0] = 0;
+                io.sockets.in(data).emit("21-SERVER_UNREADY", "#1Ready");
+            }
+        } else if(clientInRoom[data][1] == socket.clientName){
+            if(roomStatus[data][1] == 0){
+                roomStatus[data][1] = 1;
+                if(roomStatus[data][0] == 1){
+                    io.sockets.in(data).emit("22-SERVER_GAME_START");    
+                } else {
+                    io.sockets.in(data).emit("21-SERVER_READY", "#2Ready");
+                }
+            } else if(roomStatus[data][1] == 1){
+                roomStatus[data][1] = 0;
+                io.sockets.in(data).emit("21-SERVER_UNREADY", "#2Ready");
             }
         }
     });
