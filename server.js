@@ -61,7 +61,9 @@ io.on("connection", function(socket){
         io.sockets.in(data).emit("11-SERVER_PLAYERS_IN_ROOM", clientInRoom[data])
 
         // update room list for every one
-        roomList[data] += 1;
+        if(roomList[data] < 2){
+            roomList[data] += 1;
+        }
         io.sockets.emit("13-SERVER_UPDATE_ROOMS_LIST", roomList);
     });
 
