@@ -1,4 +1,5 @@
-var socket = io("http://192.168.43.6:3000");
+// var socket = io("http://192.168.43.6:3000");
+var socket = io("http://localhost:3000");
 let currentRoom = -1;
 
 // login successfully
