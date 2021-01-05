@@ -54,7 +54,11 @@ io.on("connection", function(socket){
         if(roomList[data] == 0) {
             clientInRoom[data][0] = socket.clientName;
         } else if (roomList[data] == 1) {
-            clientInRoom[data][1] = socket.clientName;
+            if(clientInRoom[data][0] == -1) {
+                clientInRoom[data][0] = socket.clientName;
+            } else if(clientInRoom[data][1] == -1) {
+                clientInRoom[data][1] = socket.clientName;
+            }
         }
         console.log("clientInRoom[]: " + clientInRoom);
         // send list of players in room
