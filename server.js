@@ -80,10 +80,12 @@ io.on("connection", function(socket){
                     io.sockets.in(data).emit("22-SERVER_GAME_START");    
                 } else {
                     io.sockets.in(data).emit("21-SERVER_READY", "#1Ready");
+                    socket.emit("21-SERVER_READY_2");
                 }
             } else if(roomStatus[data][0] == 1){
                 roomStatus[data][0] = 0;
                 io.sockets.in(data).emit("21-SERVER_UNREADY", "#1Ready");
+                socket.emit("21-SERVER_UNREADY_2");
             }
         } else if(clientInRoom[data][1] == socket.clientName){
             if(roomStatus[data][1] == 0){
@@ -92,10 +94,12 @@ io.on("connection", function(socket){
                     io.sockets.in(data).emit("22-SERVER_GAME_START");    
                 } else {
                     io.sockets.in(data).emit("21-SERVER_READY", "#2Ready");
+                    socket.emit("21-SERVER_READY_2");
                 }
             } else if(roomStatus[data][1] == 1){
                 roomStatus[data][1] = 0;
                 io.sockets.in(data).emit("21-SERVER_UNREADY", "#2Ready");
+                socket.emit("21-SERVER_UNREADY_2");
             }
         }
     });
