@@ -1,3 +1,4 @@
+const { Socket } = require("dgram");
 var express = require("express");
 var app = express();
 app.use(express.static("public"));
@@ -48,9 +49,11 @@ io.on("connection", function(socket){
     });
 
     // receive room client want to access
-    socket.on("10-CLIENT_ROOM_ID", function(data){
+    socket.on("10-CLIENT_ROOM_ID", function(data){ // data is currentRoom
         // create room name data
         socket.join(data);
+        roomStatus[data][0] = 0;
+        roomStatus[data][1] = 0;
         if(roomList[data] == 0) {
             clientInRoom[data][0] = socket.clientName;
         } else if (roomList[data] == 1) {
@@ -109,12 +112,25 @@ io.on("connection", function(socket){
         io.sockets.in(data.currentRoom).emit("31-BOARD_STATE", data);
     });
 
+    // receive that client pass
+    socket.on("40-PASS", function(data){ // data is currentRoom
+        io.sockets.in(data).emit("41-BOARD_STATE");
+    });
+
+    socket.on("42-CLIENT_END_GAME", function(data){ // data is currentRoom
+        roomStatus[data][0] = 0;
+        roomStatus[data][1] = 0;
+        io.sockets.in(data).emit("43-SERVER_END_GAME");
+    });
+
     // receive that client want to leave room
-    socket.on("60-CLIENT_LEAVE_ROOM", function(data){
+    socket.on("60-CLIENT_LEAVE_ROOM", function(data){ // data is currentRoom
         socket.leave(data);
 
         // update roomList & clientInRoom
         roomList[data] -= 1;
+        roomStatus[data][0] = 0;
+        roomStatus[data][1] = 0;
         if(clientInRoom[data][0] == socket.clientName) {
             clientInRoom[data][0] = -1;
         } else if (clientInRoom[data][1] == socket.clientName) {

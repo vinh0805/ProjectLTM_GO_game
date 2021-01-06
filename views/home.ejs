@@ -33,15 +33,19 @@
         </div>
         <div id="inRoom">
             <input type="button" id="leaveRoomButton" value="Leave Room">
-            <div id="player1">
-                <b>Player1: <span id="player1Name"></span></b>
-                <p id="1Ready" hidden><i>Ready</i></p>
+            <div id="playerList">
+                <div id="player1">
+                    <b>Player1: <span id="player1Name"></span></b>
+                    <p id="1Ready" hidden><i>Ready</i></p>
+                </div>
+                <div id="player2">
+                    <b>Player2: <span id="player2Name"></span></b>
+                    <p id="2Ready" hidden><i>Ready</i></p>
+                </div>    
             </div>
-            <div id="player2">
-                <b>Player2: <span id="player2Name"></span></b>
-                <p id="2Ready" hidden><i>Ready</i></p>
+            <div>
+                <input type="button" id="readyButton" value="Ready">
             </div>
-            <input type="button" id="readyButton" value="Ready">
 
             <!-- Chessboard -->
             <div id="chessboard" hidden>
@@ -113,8 +117,8 @@
                                     <label for="num_players">players</label>
                                 </div>
                                 <div class="form-group">
-                                    <button v-on:click="pass" type="button" class="btn btn-xs btn-primary btn-file">pass</button>
-                                    <button v-on:click="reset" type="button" class="btn btn-xs btn-success btn-file">start a new game</button>
+                                    <button v-on:click="pass" type="button" id="passButton" class="btn btn-xs btn-primary btn-file">pass</button>
+                                    <button v-on:click="reset" type="button" class="btn btn-xs btn-success btn-file" hidden>start a new game</button>
                                 </div>
                     
                                 <div class="form-group">
