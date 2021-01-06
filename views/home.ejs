@@ -90,7 +90,7 @@
                             </div> <!-- board -->
                 
                             <div class="col">
-                                <div class="form-group">
+                                <div class="form-group" hidden>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="radio" id="radio_9" value="9" v-model="board_size" checked="">
                                         <label class="form-check-label" for="radio_9">9x9</label>
@@ -104,7 +104,7 @@
                                         <label class="form-check-label" for="radio_19">19x19</label>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" hidden>
                                     <select v-model="num_players" id="num_players">
                                         <option>2</option>
                                         <option>3</option>
@@ -119,7 +119,7 @@
                     
                                 <div class="form-group">
                                     <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input" id="score_checkbox" checked="" v-model="show_score">
+                                        <input type="checkbox" class="custom-control-input" id="score_checkbox" checked="checked" v-model="show_score" hidden>
                                         <label class="custom-control-label" for="score_checkbox">
                                             show live score
                                             (<a href="https://en.wikipedia.org/wiki/Rules_of_Go#Area_scoring" target="_blank">area scoring</a>)
@@ -165,7 +165,7 @@
                 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"></script>
 
                 <script type="text/javascript" src="client.js"></script>
-                <script src="js/app.js"></script>              
+                <!-- <script src="js/app.js"></script>               -->
             </div>
             <!-- End chessboard -->
 

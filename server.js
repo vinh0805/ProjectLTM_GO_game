@@ -77,7 +77,7 @@ io.on("connection", function(socket){
             if(roomStatus[data][0] == 0){
                 roomStatus[data][0] = 1;
                 if(roomStatus[data][1] == 1){
-                    io.sockets.in(data).emit("22-SERVER_GAME_START");    
+                    io.sockets.in(data).emit("22-SERVER_GAME_START", clientInRoom[data][0]);    
                 } else {
                     io.sockets.in(data).emit("21-SERVER_READY", "#1Ready");
                     socket.emit("21-SERVER_READY_2");
@@ -91,7 +91,7 @@ io.on("connection", function(socket){
             if(roomStatus[data][1] == 0){
                 roomStatus[data][1] = 1;
                 if(roomStatus[data][0] == 1){
-                    io.sockets.in(data).emit("22-SERVER_GAME_START");    
+                    io.sockets.in(data).emit("22-SERVER_GAME_START", clientInRoom[data][0]);    
                 } else {
                     io.sockets.in(data).emit("21-SERVER_READY", "#2Ready");
                     socket.emit("21-SERVER_READY_2");
@@ -102,6 +102,11 @@ io.on("connection", function(socket){
                 socket.emit("21-SERVER_UNREADY_2");
             }
         }
+    });
+
+    // receive that client click on chessboard
+    socket.on("30-PLACE", function(data){
+        io.sockets.in(data.currentRoom).emit("31-BOARD_STATE", data);
     });
 
     // receive that client want to leave room
