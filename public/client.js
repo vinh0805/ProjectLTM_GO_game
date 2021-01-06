@@ -54,12 +54,18 @@ socket.on("13-SERVER_UPDATE_ROOMS_LIST", function(data){
 // someone ready
 socket.on("21-SERVER_READY", function(data){
     $(data).show();
+});
+
+socket.on("21-SERVER_READY_2", function(){
     $("#readyButton").val("Unready");
 });
 
 // someone unready
 socket.on("21-SERVER_UNREADY", function(data){
     $(data).hide(100);
+});
+
+socket.on("21-SERVER_UNREADY_2", function(){
     $("#readyButton").val("Ready");
 });
 
@@ -126,3 +132,4 @@ $(document).ready(function(){
         socket.emit("20-USER_READY", currentRoom);
     });
 });
+
