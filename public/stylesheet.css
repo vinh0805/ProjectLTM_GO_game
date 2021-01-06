@@ -30,7 +30,10 @@ body {
 .room:hover {
     background-color: #ff0066;
 }
-
+#playerList {
+    width: 100%;
+    min-height: 100px;
+}
 #player1 {
     display: inline-block;
     float: left;
@@ -64,7 +67,6 @@ body {
     height: 40px;
     display: block;
     margin: auto;
-    margin-top: 300px;
     border-radius: 10px;
 }
 

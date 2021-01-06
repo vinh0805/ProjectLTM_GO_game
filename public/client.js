@@ -32,9 +32,12 @@ socket.on("02-SERVER_LOGIN_INCORRECT", function(){
 socket.on("11-SERVER_PLAYERS_IN_ROOM", function(data){
     // show player name
     $("#player1Name").html(data[0]);
-    if(data[2] != -1) {
-        $("#player2Name").html(data[1]);
-    }
+    $("#player2Name").html(data[1]);
+
+    // Reset Ready status + button
+    $("#1Ready").hide();
+    $("#2Ready").hide();
+    $("#readyButton").val("Ready");
 
     // show inRoom
     $("#loginForm").hide();
@@ -72,6 +75,7 @@ socket.on("21-SERVER_UNREADY_2", function(){
 
 // game start
 socket.on("22-SERVER_GAME_START", function(data){
+    app.reset();
     if(socket.clientName == data) {
         yourTurn = true;
     } else {
@@ -96,18 +100,27 @@ socket.on("31-BOARD_STATE", function(data){
     let y = data.y;
 
     if(app.click2(x, y)){
-        if(yourTurn) {
-            yourTurn = false;
-            $("#chessboard").prop("disabled", true);
-        } else {
-            yourTurn = true;
-            $("#chessboard").prop("disabled", false);
-        }
+        changeYourTurn();
     };
+    console.log('Your turn: ' + yourTurn);
+});
+
+socket.on("41-BOARD_STATE", function(){
+    app.pass2();
+    changeYourTurn();
+    console.log('Your turn: ' + yourTurn);
+});
+
+// End game
+socket.on("43-SERVER_END_GAME", function(){
+    disableChessBoard();
+    $("#readyButton").val("Ready");
+    $("#readyButton").show(500);
 });
 
 socket.on("61-LEAVE-ROOM-SUCCESSFULLY", function(){
     alert("Leave room successfully!");
+    app.reset();
     $("#loginForm").hide();
     $("#inRoom").hide(1000);
     $("#roomList").show(500);
@@ -162,6 +175,25 @@ $(document).ready(function(){
         socket.emit("20-USER_READY", currentRoom);
     });
 });
+
+
+function changeYourTurn() {
+    if(yourTurn) {
+        yourTurn = false;
+        $("#chessboard").prop("disabled", true);
+        $("#passButton").prop("disabled", true);
+    } else {
+        yourTurn = true;
+        $("#chessboard").prop("disabled", false);
+        $("#passButton").prop("disabled", false);
+    }
+}
+
+function disableChessBoard() {
+    yourTurn = false;
+    $("#chessboard").prop("disabled", true);
+    $("#passButton").prop("disabled", true);
+}
 
 // App.js
 
@@ -686,9 +718,19 @@ var app = new Vue({
             }
         },
         pass: function() {
+            if(yourTurn) {
+                socket.emit("40-PASS", currentRoom );
+            }
+        },
+        pass2: function() {
             this.num_consecutive_passes += 1;
             this.num_moves += 1;
-            this._switch_player();
+            if(this.num_consecutive_passes == this.num_colors) {
+                yourTurn = false;
+                socket.emit("42-CLIENT_END_GAME", currentRoom);
+            } else {
+                this._switch_player();
+            }
         },
         click: function(x, y) {
             if (this.board[[x, y]] != EMPTY) {
