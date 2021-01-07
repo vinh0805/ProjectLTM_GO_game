@@ -4,7 +4,7 @@ let currentRoom = -1;
 let yourTurn = false;
 
 // login successfully
-socket.on("01-SERVER_ROOMS_LIST", function(data){
+socket.on("01_SERVER_ROOMS_LIST", function(data){
     alert("Login successfully!");
     console.log(data);
 
@@ -24,12 +24,12 @@ socket.on("01-SERVER_ROOMS_LIST", function(data){
     $("#inRoom").hide();
 });
 // login failed
-socket.on("02-SERVER_LOGIN_INCORRECT", function(){
+socket.on("02_SERVER_LOGIN_INCORRECT", function(){
     alert("Login failed!");
 });
 
 // go in room successfully, receiver list of players in room
-socket.on("11-SERVER_PLAYERS_IN_ROOM", function(data){
+socket.on("11_SERVER_PLAYERS_IN_ROOM", function(data){
     // show player name
     $("#player1Name").html(data[0]);
     $("#player2Name").html(data[1]);
@@ -37,6 +37,7 @@ socket.on("11-SERVER_PLAYERS_IN_ROOM", function(data){
     // Reset Ready status + button
     $("#1Ready").hide();
     $("#2Ready").hide();
+    $("#readyButton").show();
     $("#readyButton").val("Ready");
 
     // show inRoom
@@ -46,7 +47,7 @@ socket.on("11-SERVER_PLAYERS_IN_ROOM", function(data){
 });
 
 // update room list
-socket.on("13-SERVER_UPDATE_ROOMS_LIST", function(data){
+socket.on("13_SERVER_UPDATE_ROOMS_LIST", function(data){
     for(let i = 0; i < data.length; i++) {
         let roomId = "#room" + i;
         let roomSpanId = "#roomSpan" + i;
@@ -56,25 +57,25 @@ socket.on("13-SERVER_UPDATE_ROOMS_LIST", function(data){
 });
 
 // someone ready
-socket.on("21-SERVER_READY", function(data){
+socket.on("21_SERVER_READY", function(data){
     $(data).show();
 });
 
-socket.on("21-SERVER_READY_2", function(){
+socket.on("21_SERVER_READY_2", function(){
     $("#readyButton").val("Unready");
 });
 
 // someone unready
-socket.on("21-SERVER_UNREADY", function(data){
+socket.on("21_SERVER_UNREADY", function(data){
     $(data).hide(100);
 });
 
-socket.on("21-SERVER_UNREADY_2", function(){
+socket.on("21_SERVER_UNREADY_2", function(){
     $("#readyButton").val("Ready");
 });
 
 // game start
-socket.on("22-SERVER_GAME_START", function(data){
+socket.on("22_SERVER_GAME_START", function(data){
     app.reset();
     if(socket.clientName == data) {
         yourTurn = true;
@@ -87,14 +88,14 @@ socket.on("22-SERVER_GAME_START", function(data){
     $("#readyButton").hide();
     $("#chessboard").show(500);
     if(!yourTurn) {
-        $("#chessboard").prop("disabled", true);
+        disableChessBoard();
     } else {
-        $("#chessboard").prop("disabled", false);
+        enableChessBoard();
     }
 });
 
 // In game
-socket.on("31-BOARD_STATE", function(data){
+socket.on("31_BOARD_STATE", function(data){
     console.log(data);
     let x = data.x;
     let y = data.y;
@@ -105,29 +106,32 @@ socket.on("31-BOARD_STATE", function(data){
     console.log('Your turn: ' + yourTurn);
 });
 
-socket.on("41-BOARD_STATE", function(){
+socket.on("41_BOARD_STATE", function(){
     app.pass2();
     changeYourTurn();
     console.log('Your turn: ' + yourTurn);
 });
 
 // End game
-socket.on("43-SERVER_END_GAME", function(){
+socket.on("43_SERVER_END_GAME", function(){
     disableChessBoard();
     $("#readyButton").val("Ready");
     $("#readyButton").show(500);
 });
 
-socket.on("61-LEAVE-ROOM-SUCCESSFULLY", function(){
+socket.on("61_LEAVE-ROOM-SUCCESSFULLY", function(){
     alert("Leave room successfully!");
+    disableChessBoard();
     app.reset();
     $("#loginForm").hide();
     $("#inRoom").hide(1000);
     $("#roomList").show(500);
+    $("#chessboard").hide();
 });
 
-socket.on("71-SERVER_LOG_OUT_SUCCESSFULLY", function(){
+socket.on("71_SERVER_LOG_OUT_SUCCESSFULLY", function(){
     alert("Log out successfully!");
+    disableChessBoard();
     $("#roomList").hide(1000);
     $("#loginForm").show(500);
     $("#inRoom").hide();
@@ -144,14 +148,14 @@ $(document).ready(function(){
         let account = $("#account").val();
         let password = $("#password").val();
         socket.clientName = account;
-        socket.emit("00-CLIENT_LOGIN", {account:account, password:password});
+        socket.emit("00_CLIENT_LOGIN", {account:account, password:password});
     });
 
     // choose room
     $(".room").click(function(){
         if($(this).data("number-player") < 2) {
             // can access this room
-            socket.emit("10-CLIENT_ROOM_ID", $(this).data("room"));
+            socket.emit("10_CLIENT_ROOM_ID", $(this).data("room"));
             currentRoom = $(this).data("room");
         } else {
             alert("This room is full!");
@@ -160,19 +164,19 @@ $(document).ready(function(){
 
     $("#leaveRoomButton").click(function(){
         if(confirm("Do you want to leave room?")){
-            socket.emit("60-CLIENT_LEAVE_ROOM", currentRoom);
+            socket.emit("60_CLIENT_LEAVE_ROOM", currentRoom);
             currentRoom = -1;
         };
     });
 
     $("#logoutButton").click(function(){
         if(confirm("Do you want to log out?")) {
-            socket.emit("70-CLIENT_LOG_OUT");
+            socket.emit("70_CLIENT_LOG_OUT");
         }
     });
 
     $("#readyButton").click(function(){
-        socket.emit("20-USER_READY", currentRoom);
+        socket.emit("20_USER_READY", currentRoom);
     });
 });
 
@@ -195,13 +199,17 @@ function disableChessBoard() {
     $("#passButton").prop("disabled", true);
 }
 
+function enableChessBoard() {
+    yourTurn = true;
+    $("#chessboard").prop("disabled", false);
+    $("#passButton").prop("disabled", false);
+}
+
+// ============================================================================ //
 // App.js
 
 // 'use strict';
-
-
 const EMPTY = 0;
-
 
 // https://stackoverflow.com/a/7616484
 function _hash(num_rows, num_cols, board) {
@@ -719,7 +727,7 @@ var app = new Vue({
         },
         pass: function() {
             if(yourTurn) {
-                socket.emit("40-PASS", currentRoom );
+                socket.emit("40_PASS", currentRoom );
             }
         },
         pass2: function() {
@@ -727,7 +735,7 @@ var app = new Vue({
             this.num_moves += 1;
             if(this.num_consecutive_passes == this.num_colors) {
                 yourTurn = false;
-                socket.emit("42-CLIENT_END_GAME", currentRoom);
+                socket.emit("42_CLIENT_END_GAME", currentRoom);
             } else {
                 this._switch_player();
             }
@@ -738,7 +746,7 @@ var app = new Vue({
                 return;
             }
             if(yourTurn) {
-                socket.emit("30-PLACE", {x: x, y: y, currentRoom: currentRoom});
+                socket.emit("30_PLACE", {x: x, y: y, currentRoom: currentRoom});
             }
         },
         click2: function(x, y){

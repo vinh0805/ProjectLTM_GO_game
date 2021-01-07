@@ -10,9 +10,10 @@ var io = require("socket.io")(server);
 
 const accountList = ['admin1', 'admin2', 'admin3', 'admin4', 'admin5'];
 const passwordList = ['123123', '123123', '123123', '123123', '123123'];
+
 let accountStatus = [0, 0, 0, 0, 0];
 let roomList = [0, 0, 0, 0, 0];
-let roomStatus = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]];
+let roomReadyStatus = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]];
 let clientInRoom = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
 
 server.listen(3000);
@@ -24,156 +25,164 @@ io.on("connection", function(socket){
     socket.clientName = "";
 
     // receive account and password from client
-    socket.on("00-CLIENT_LOGIN", function(data){
+    socket.on("00_CLIENT_LOGIN", function(data){
         if(accountList.indexOf(data.account) >= 0) {
             // have account in accountList
             if(data.password == passwordList[accountList.indexOf(data.account)]) {
                 // right password
                 if(accountStatus[accountList.indexOf(data.account)] == 0) {
                     socket.clientName = data.account;
-                    socket.emit("01-SERVER_ROOMS_LIST", roomList);
+                    socket.emit("01_SERVER_ROOMS_LIST", roomList);
                     accountStatus[accountList.indexOf(data.account)] = 1;
                     console.log("accountStatus[]: " + accountStatus);
                 } else {
                     // this account is using by another one
-                    socket.emit("02-SERVER_LOGIN_INCORRECT");
+                    socket.emit("02_SERVER_LOGIN_INCORRECT");
                 }
             } else {
                 // wrong password
-                socket.emit("02-SERVER_LOGIN_INCORRECT");
+                socket.emit("02_SERVER_LOGIN_INCORRECT");
             }
         } else {
             // wrong account
-            socket.emit("02-SERVER_LOGIN_INCORRECT");
+            socket.emit("02_SERVER_LOGIN_INCORRECT");
         }
     });
 
     // receive room client want to access
-    socket.on("10-CLIENT_ROOM_ID", function(data){ // data is currentRoom
-        // create room name data
-        socket.join(data);
-        roomStatus[data][0] = 0;
-        roomStatus[data][1] = 0;
-        if(roomList[data] == 0) {
-            clientInRoom[data][0] = socket.clientName;
-        } else if (roomList[data] == 1) {
-            if(clientInRoom[data][0] == -1) {
-                clientInRoom[data][0] = socket.clientName;
-            } else if(clientInRoom[data][1] == -1) {
-                clientInRoom[data][1] = socket.clientName;
+    socket.on("10_CLIENT_ROOM_ID", function(currentRoom){
+        // create room name currentRoom
+        socket.join(currentRoom);
+        unreadyClientInRoom(currentRoom);
+        if(roomList[currentRoom] == 0) {
+            clientInRoom[currentRoom][0] = socket.clientName;
+        } else if (roomList[currentRoom] == 1) {
+            if(clientInRoom[currentRoom][0] == -1) {
+                clientInRoom[currentRoom][0] = socket.clientName;
+            } else if(clientInRoom[currentRoom][1] == -1) {
+                clientInRoom[currentRoom][1] = socket.clientName;
             }
         }
         console.log("clientInRoom[]: " + clientInRoom);
         // send list of players in room
-        io.sockets.in(data).emit("11-SERVER_PLAYERS_IN_ROOM", clientInRoom[data])
+        io.sockets.in(currentRoom).emit("11_SERVER_PLAYERS_IN_ROOM", clientInRoom[currentRoom])
 
         // update room list for every one
-        if(roomList[data] < 2){
-            roomList[data] += 1;
+        if(roomList[currentRoom] < 2){
+            roomList[currentRoom] += 1;
         }
-        io.sockets.emit("13-SERVER_UPDATE_ROOMS_LIST", roomList);
+        io.sockets.emit("13_SERVER_UPDATE_ROOMS_LIST", roomList);
     });
 
     // receive that user click ready button
-    socket.on("20-USER_READY", function(data){
-        if(clientInRoom[data][0] == socket.clientName){
-            if(roomStatus[data][0] == 0){
-                roomStatus[data][0] = 1;
-                if(roomStatus[data][1] == 1){
-                    io.sockets.in(data).emit("22-SERVER_GAME_START", clientInRoom[data][0]);    
+    socket.on("20_USER_READY", function(currentRoom){
+        if(clientInRoom[currentRoom][0] == socket.clientName){
+            if(roomReadyStatus[currentRoom][0] == 0){
+                roomReadyStatus[currentRoom][0] = 1;
+                if(roomReadyStatus[currentRoom][1] == 1){
+                    io.sockets.in(currentRoom).emit("22_SERVER_GAME_START", clientInRoom[currentRoom][0]);    
                 } else {
-                    io.sockets.in(data).emit("21-SERVER_READY", "#1Ready");
-                    socket.emit("21-SERVER_READY_2");
+                    io.sockets.in(currentRoom).emit("21_SERVER_READY", "#1Ready");
+                    socket.emit("21_SERVER_READY_2");
                 }
-            } else if(roomStatus[data][0] == 1){
-                roomStatus[data][0] = 0;
-                io.sockets.in(data).emit("21-SERVER_UNREADY", "#1Ready");
-                socket.emit("21-SERVER_UNREADY_2");
+            } else if(roomReadyStatus[currentRoom][0] == 1){
+                roomReadyStatus[currentRoom][0] = 0;
+                io.sockets.in(currentRoom).emit("21_SERVER_UNREADY", "#1Ready");
+                socket.emit("21_SERVER_UNREADY_2");
             }
-        } else if(clientInRoom[data][1] == socket.clientName){
-            if(roomStatus[data][1] == 0){
-                roomStatus[data][1] = 1;
-                if(roomStatus[data][0] == 1){
-                    io.sockets.in(data).emit("22-SERVER_GAME_START", clientInRoom[data][0]);    
+        } else if(clientInRoom[currentRoom][1] == socket.clientName){
+            if(roomReadyStatus[currentRoom][1] == 0){
+                roomReadyStatus[currentRoom][1] = 1;
+                if(roomReadyStatus[currentRoom][0] == 1){
+                    io.sockets.in(currentRoom).emit("22_SERVER_GAME_START", clientInRoom[currentRoom][0]);    
                 } else {
-                    io.sockets.in(data).emit("21-SERVER_READY", "#2Ready");
-                    socket.emit("21-SERVER_READY_2");
+                    io.sockets.in(currentRoom).emit("21_SERVER_READY", "#2Ready");
+                    socket.emit("21_SERVER_READY_2");
                 }
-            } else if(roomStatus[data][1] == 1){
-                roomStatus[data][1] = 0;
-                io.sockets.in(data).emit("21-SERVER_UNREADY", "#2Ready");
-                socket.emit("21-SERVER_UNREADY_2");
+            } else if(roomReadyStatus[currentRoom][1] == 1){
+                roomReadyStatus[currentRoom][1] = 0;
+                io.sockets.in(currentRoom).emit("21_SERVER_UNREADY", "#2Ready");
+                socket.emit("21_SERVER_UNREADY_2");
             }
         }
     });
 
     // receive that client click on chessboard
-    socket.on("30-PLACE", function(data){
-        io.sockets.in(data.currentRoom).emit("31-BOARD_STATE", data);
+    socket.on("30_PLACE", function(data){
+        io.sockets.in(data.currentRoom).emit("31_BOARD_STATE", data);
     });
 
     // receive that client pass
-    socket.on("40-PASS", function(data){ // data is currentRoom
-        io.sockets.in(data).emit("41-BOARD_STATE");
+    socket.on("40_PASS", function(currentRoom){
+        io.sockets.in(currentRoom).emit("41_BOARD_STATE");
     });
 
-    socket.on("42-CLIENT_END_GAME", function(data){ // data is currentRoom
-        roomStatus[data][0] = 0;
-        roomStatus[data][1] = 0;
-        io.sockets.in(data).emit("43-SERVER_END_GAME");
+    socket.on("42_CLIENT_END_GAME", function(currentRoom){
+        unreadyClientInRoom(currentRoom);
+        io.sockets.in(currentRoom).emit("43_SERVER_END_GAME");
     });
 
     // receive that client want to leave room
-    socket.on("60-CLIENT_LEAVE_ROOM", function(data){ // data is currentRoom
-        socket.leave(data);
+    socket.on("60_CLIENT_LEAVE_ROOM", function(currentRoom){
+        socket.leave(currentRoom);
 
         // update roomList & clientInRoom
-        roomList[data] -= 1;
-        roomStatus[data][0] = 0;
-        roomStatus[data][1] = 0;
-        if(clientInRoom[data][0] == socket.clientName) {
-            clientInRoom[data][0] = -1;
-        } else if (clientInRoom[data][1] == socket.clientName) {
-            clientInRoom[data][1] = -1;
+        roomList[currentRoom] -= 1;
+        unreadyClientInRoom(currentRoom);
+        if(clientInRoom[currentRoom][0] == socket.clientName) {
+            clientInRoom[currentRoom][0] = -1;
+        } else if (clientInRoom[currentRoom][1] == socket.clientName) {
+            clientInRoom[currentRoom][1] = -1;
         }
 
         // update room list for every one
-        io.sockets.emit("13-SERVER_UPDATE_ROOMS_LIST", roomList);
+        io.sockets.emit("13_SERVER_UPDATE_ROOMS_LIST", roomList);
 
         // send to player2 in room that player1 leaved this room
-        io.sockets.in(data).emit("11-SERVER_PLAYERS_IN_ROOM", clientInRoom[data]);
+        io.sockets.in(currentRoom).emit("11_SERVER_PLAYERS_IN_ROOM", clientInRoom[currentRoom]);
         
-        socket.emit("61-LEAVE-ROOM-SUCCESSFULLY");
+        socket.emit("61_LEAVE-ROOM-SUCCESSFULLY");
     });
 
     // receive that client want to log out
-    socket.on("70-CLIENT_LOG_OUT", function(){        
+    socket.on("70_CLIENT_LOG_OUT", function(){        
         accountStatus[accountList.indexOf(socket.clientName)] = 0;
         socket.clientName = "";
-        socket.emit("71-SERVER_LOG_OUT_SUCCESSFULLY");
+        socket.emit("71_SERVER_LOG_OUT_SUCCESSFULLY");
         console.log("accountStatus[]: " + accountStatus);
     })
 
     socket.on("disconnect", function(){
         // update roomList & clientInRoom
-        for(let i = 0; i < 5; i++) {
-            if(clientInRoom[i][0] == socket.clientName) {
-                clientInRoom[i][0] = -1;
+        for(let i = 0; i < 5; i++) {    // i is currentRoom
+            if(clientInRoom[i][0] == socket.clientName || clientInRoom[i][1] == socket.clientName) {
+                if(clientInRoom[i][0] == socket.clientName) {
+                    clientInRoom[i][0] = -1;
+                } else if (clientInRoom[i][1] == socket.clientName) {
+                    clientInRoom[i][1] = -1;
+                }
+                unreadyClientInRoom(i);
                 roomList[i] -= 1;
+                // send to player2 in room that player1 leaved this room
+                io.sockets.in(i).emit("11_SERVER_PLAYERS_IN_ROOM", clientInRoom[i]);
                 break;
-            } else if (clientInRoom[i][1] == socket.clientName) {
-                clientInRoom[i][1] = -1;
-                roomList[i] -= 1;
-                break;
-            }    
+            }
         }
         
         accountStatus[accountList.indexOf(socket.clientName)] = 0;
         socket.clientName = "";
         console.log(socket.id + " disconnected.");
+
+        // Update roomList to other clients
+        io.sockets.emit("13_SERVER_UPDATE_ROOMS_LIST", roomList);
     });
 });
 
 app.get("/", function(req, res){
     res.render("home");
 });
+
+function unreadyClientInRoom(currentRoom) {
+    roomReadyStatus[currentRoom][0] = 0;
+    roomReadyStatus[currentRoom][1] = 0;
+}
