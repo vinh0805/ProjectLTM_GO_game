@@ -77,6 +77,7 @@ body {
     text-align: center;
     font-weight: bold;
     font-size: 24px;
+    margin-top: 15px;
 }
 
 #chessboard2 {
@@ -129,7 +130,4 @@ body {
     display: none;
   }
   
-  .top-buffer {
-    margin-top: 15px;
-  }
   

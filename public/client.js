@@ -1,7 +1,14 @@
 // var socket = io("http://192.168.43.6:3000");
 var socket = io("http://localhost:3000");
+
+const PLAYTIME = 20;
+
 let currentRoom = -1;
 let yourTurn = false;
+var time1 = PLAYTIME;
+var time2 = PLAYTIME;
+let isPlayer1 = false;
+let inGame = false;
 
 // login successfully
 socket.on("01_SERVER_ROOMS_LIST", function(data){
@@ -75,9 +82,10 @@ socket.on("21_SERVER_UNREADY_2", function(){
 });
 
 // game start
-socket.on("22_SERVER_GAME_START", function(data){
+socket.on("22_SERVER_GAME_START", function(player1){
     app.reset();
-    if(socket.clientName == data) {
+    inGame = true;
+    if(socket.clientName == player1) {
         yourTurn = true;
     } else {
         yourTurn = false;
@@ -87,11 +95,48 @@ socket.on("22_SERVER_GAME_START", function(data){
     $("#2Ready").hide();
     $("#readyButton").hide();
     $("#chessboard").show(500);
+    $("#timeUpMessage").hide();
     if(!yourTurn) {
         disableChessBoard();
     } else {
         enableChessBoard();
     }
+
+    // Time function
+    if(socket.clientName == player1) {
+        isPlayer1 = true;
+    }
+    var startedTime = new Date().getTime();
+    time1 = PLAYTIME;
+    time2 = PLAYTIME;
+    $("#time1").show();
+    $("#time2").show();
+    var countDown = setInterval(function(){
+        let currentTime = new Date().getTime();
+        if(isPlayer1) { // player 1
+            if(yourTurn) {
+                time1 = PLAYTIME - (currentTime - startedTime)/1000 + (PLAYTIME - time2);
+            } else {
+                time2 = PLAYTIME - (currentTime - startedTime)/1000 + (PLAYTIME - time1);
+            }
+        } else {        // player 2
+            if(yourTurn) {
+                time2 = PLAYTIME - (currentTime - startedTime)/1000 + (PLAYTIME - time1);
+            } else {
+                time1 = PLAYTIME - (currentTime - startedTime)/1000 + (PLAYTIME - time2);
+            }
+        }
+        $("#time1").html(Math.round(time1));
+        $("#time2").html(Math.round(time2));
+        if(time1 <= 0 || time2 <= 0) {
+            clearInterval(countDown);
+            socket.emit("44_CLIENT_TIME_END_GAME", currentRoom);
+        }
+        if(!inGame) {
+            clearInterval(countDown);
+            socket.emit("42_CLIENT_END_GAME", currentRoom);
+        }
+    }, 100);
 });
 
 // In game
@@ -114,6 +159,14 @@ socket.on("41_BOARD_STATE", function(){
 
 // End game
 socket.on("43_SERVER_END_GAME", function(){
+    inGame = false;
+    disableChessBoard();
+    $("#readyButton").val("Ready");
+    $("#readyButton").show(500);
+});
+socket.on("45_SERVER_TIME_END_GAME", function(){
+    inGame = false;
+    $("#timeUpMessage").show();
     disableChessBoard();
     $("#readyButton").val("Ready");
     $("#readyButton").show(500);
@@ -127,6 +180,7 @@ socket.on("61_LEAVE-ROOM-SUCCESSFULLY", function(){
     $("#inRoom").hide(1000);
     $("#roomList").show(500);
     $("#chessboard").hide();
+    $("#timeUpMessage").hide();
 });
 
 socket.on("71_SERVER_LOG_OUT_SUCCESSFULLY", function(){
@@ -204,6 +258,8 @@ function enableChessBoard() {
     $("#chessboard").prop("disabled", false);
     $("#passButton").prop("disabled", false);
 }
+
+
 
 // ============================================================================ //
 // App.js
