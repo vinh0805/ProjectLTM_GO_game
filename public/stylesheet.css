@@ -69,6 +69,40 @@ body {
     margin: auto;
     border-radius: 10px;
 }
+#readyButton:hover {
+    background-color: #ff0066;
+}
+
+.top-buffer {
+    text-align: center;
+    font-weight: bold;
+    font-size: 24px;
+}
+
+#chessboard2 {
+    width: 446px;
+    margin: auto;
+}
+#chessboardLeft {
+    display: inline-block;
+    min-width: 310px;
+    max-width: 60%;
+    margin: auto;
+}
+#chessboardRight{
+    display: inline-block;
+    position: absolute;
+}
+#passButton {
+    margin: 0 0 20px 20px;
+    width: 80px;
+    height: 40px;
+    font-size: 24px;
+    border-radius: 10px;
+}
+#passButton:hover:enabled {
+    background-color: #ff0066;
+}
 
 body {
     font-family: 'Open Sans';
