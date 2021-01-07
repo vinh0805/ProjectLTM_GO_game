@@ -121,6 +121,10 @@ io.on("connection", function(socket){
         unreadyClientInRoom(currentRoom);
         io.sockets.in(currentRoom).emit("43_SERVER_END_GAME");
     });
+    socket.on("44_CLIENT_TIME_END_GAME", function(currentRoom){
+        unreadyClientInRoom(currentRoom);
+        io.sockets.in(currentRoom).emit("45_SERVER_TIME_END_GAME");
+    });
 
     // receive that client want to leave room
     socket.on("60_CLIENT_LEAVE_ROOM", function(currentRoom){

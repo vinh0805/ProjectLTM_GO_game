@@ -37,10 +37,12 @@
                 <div id="player1">
                     <b>Player1: <span id="player1Name"></span></b>
                     <p id="1Ready" hidden><i>Ready</i></p>
+                    <p id="time1" hidden></p>
                 </div>
                 <div id="player2">
                     <b>Player2: <span id="player2Name"></span></b>
                     <p id="2Ready" hidden><i>Ready</i></p>
+                    <p id="time2" hidden></p>
                 </div>    
             </div>
             <div>
@@ -56,6 +58,7 @@
                                 <div v-if="num_consecutive_passes == num_colors" class="alert alert-dismissible alert-danger">
                                     {{ num_players }} consecutive passes: game has ended.
                                 </div>
+                                <div id="timeUpMessage" hidden>Time up: Game has ended</div>
                             </div>
                         </div>
               
