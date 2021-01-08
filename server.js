@@ -19,9 +19,6 @@ let clientInRoom = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
 server.listen(3000);
 
 io.on("connection", function(socket){
-    console.log(socket.id + " connected.");
-    console.log(socket.adapter.rooms);
-
     socket.clientName = "";
 
     // receive account and password from client
@@ -34,7 +31,6 @@ io.on("connection", function(socket){
                     socket.clientName = data.account;
                     socket.emit("01_SERVER_ROOMS_LIST", roomList);
                     accountStatus[accountList.indexOf(data.account)] = 1;
-                    console.log("accountStatus[]: " + accountStatus);
                 } else {
                     // this account is using by another one
                     socket.emit("02_SERVER_LOGIN_INCORRECT");
@@ -63,7 +59,6 @@ io.on("connection", function(socket){
                 clientInRoom[currentRoom][1] = socket.clientName;
             }
         }
-        console.log("clientInRoom[]: " + clientInRoom);
         // send list of players in room
         io.sockets.in(currentRoom).emit("11_SERVER_PLAYERS_IN_ROOM", clientInRoom[currentRoom])
 
@@ -153,7 +148,6 @@ io.on("connection", function(socket){
         accountStatus[accountList.indexOf(socket.clientName)] = 0;
         socket.clientName = "";
         socket.emit("71_SERVER_LOG_OUT_SUCCESSFULLY");
-        console.log("accountStatus[]: " + accountStatus);
     })
 
     socket.on("disconnect", function(){
@@ -175,7 +169,6 @@ io.on("connection", function(socket){
         
         accountStatus[accountList.indexOf(socket.clientName)] = 0;
         socket.clientName = "";
-        console.log(socket.id + " disconnected.");
 
         // Update roomList to other clients
         io.sockets.emit("13_SERVER_UPDATE_ROOMS_LIST", roomList);

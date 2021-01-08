@@ -13,7 +13,6 @@ let inGame = false;
 // login successfully
 socket.on("01_SERVER_ROOMS_LIST", function(data){
     alert("Login successfully!");
-    console.log(data);
 
     $("#account").val("");
     $("#password").val("");
@@ -90,7 +89,6 @@ socket.on("22_SERVER_GAME_START", function(player1){
     } else {
         yourTurn = false;
     }
-    console.log('Your turn: ' + yourTurn);
     $("#1Ready").hide();
     $("#2Ready").hide();
     $("#readyButton").hide();
@@ -141,20 +139,17 @@ socket.on("22_SERVER_GAME_START", function(player1){
 
 // In game
 socket.on("31_BOARD_STATE", function(data){
-    console.log(data);
     let x = data.x;
     let y = data.y;
 
     if(app.click2(x, y)){
         changeYourTurn();
     };
-    console.log('Your turn: ' + yourTurn);
 });
 
 socket.on("41_BOARD_STATE", function(){
     app.pass2();
     changeYourTurn();
-    console.log('Your turn: ' + yourTurn);
 });
 
 // End game
