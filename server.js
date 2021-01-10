@@ -15,6 +15,7 @@ let accountStatus = [0, 0, 0, 0, 0];
 let roomList = [0, 0, 0, 0, 0];
 let roomReadyStatus = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]];
 let clientInRoom = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
+let inGame = false;
 
 server.listen(3000);
 
@@ -75,6 +76,7 @@ io.on("connection", function(socket){
             if(roomReadyStatus[currentRoom][0] == 0){
                 roomReadyStatus[currentRoom][0] = 1;
                 if(roomReadyStatus[currentRoom][1] == 1){
+                    inGame = true;
                     io.sockets.in(currentRoom).emit("22_SERVER_GAME_START", clientInRoom[currentRoom][0]);    
                 } else {
                     io.sockets.in(currentRoom).emit("21_SERVER_READY", "#1Ready");
@@ -89,6 +91,7 @@ io.on("connection", function(socket){
             if(roomReadyStatus[currentRoom][1] == 0){
                 roomReadyStatus[currentRoom][1] = 1;
                 if(roomReadyStatus[currentRoom][0] == 1){
+                    inGame = true;
                     io.sockets.in(currentRoom).emit("22_SERVER_GAME_START", clientInRoom[currentRoom][0]);    
                 } else {
                     io.sockets.in(currentRoom).emit("21_SERVER_READY", "#2Ready");
@@ -113,12 +116,18 @@ io.on("connection", function(socket){
     });
 
     socket.on("42_CLIENT_END_GAME", function(currentRoom){
-        unreadyClientInRoom(currentRoom);
-        io.sockets.in(currentRoom).emit("43_SERVER_END_GAME");
+        if(inGame) {
+            unreadyClientInRoom(currentRoom);
+            io.sockets.in(currentRoom).emit("43_SERVER_END_GAME");
+            inGame = false;
+        }
     });
     socket.on("44_CLIENT_TIME_END_GAME", function(currentRoom){
-        unreadyClientInRoom(currentRoom);
-        io.sockets.in(currentRoom).emit("45_SERVER_TIME_END_GAME");
+        if(inGame) {
+            unreadyClientInRoom(currentRoom);
+            io.sockets.in(currentRoom).emit("45_SERVER_TIME_END_GAME");
+            inGame = false;
+        }
     });
 
     // receive that client want to leave room

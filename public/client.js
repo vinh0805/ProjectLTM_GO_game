@@ -158,13 +158,11 @@ socket.on("43_SERVER_END_GAME", function(){
     disableChessBoard();
     $("#readyButton").val("Ready");
     $("#readyButton").show(500);
+    app.show_winner();
 });
 socket.on("45_SERVER_TIME_END_GAME", function(){
     inGame = false;
     $("#timeUpMessage").show();
-    disableChessBoard();
-    $("#readyButton").val("Ready");
-    $("#readyButton").show(500);
 });
 
 socket.on("61_LEAVE-ROOM-SUCCESSFULLY", function(){
@@ -866,6 +864,16 @@ var app = new Vue({
         color: function(n) {
             let colors = ['black', 'white', 'red', 'blue'];
             return colors[n - 1];
+        },
+        show_winner: function() {
+            console.log(this.score);
+            if(this.score[1] > this.score[2]) {
+                alert("Winner: player 1!!!");
+            } else if (this.score[1] < this.score[2]) {
+                alert("Winner: player 2!!!");
+            } else {
+                alert("Draw!!!");
+            }
         }
     }
 })
