@@ -94,6 +94,7 @@ socket.on("22_SERVER_GAME_START", function(player1){
     $("#readyButton").hide();
     $("#chessboard").show(500);
     $("#timeUpMessage").hide();
+    $("#winner").hide();
     if(!yourTurn) {
         disableChessBoard();
     } else {
@@ -134,7 +135,7 @@ socket.on("22_SERVER_GAME_START", function(player1){
             clearInterval(countDown);
             socket.emit("42_CLIENT_END_GAME", currentRoom);
         }
-    }, 100);
+    }, 10);
 });
 
 // In game
@@ -162,11 +163,16 @@ socket.on("43_SERVER_END_GAME", function(){
 });
 socket.on("45_SERVER_TIME_END_GAME", function(){
     inGame = false;
+    showWinner();
     $("#timeUpMessage").show();
+    disableChessBoard();
+    $("#readyButton").val("Ready");
+    $("#readyButton").show(500);
 });
 
 socket.on("61_LEAVE-ROOM-SUCCESSFULLY", function(){
     alert("Leave room successfully!");
+    yourTurn = false;
     disableChessBoard();
     app.reset();
     $("#loginForm").hide();
@@ -174,6 +180,8 @@ socket.on("61_LEAVE-ROOM-SUCCESSFULLY", function(){
     $("#roomList").show(500);
     $("#chessboard").hide();
     $("#timeUpMessage").hide();
+    $("#time1").hide();
+    $("#time2").hide();
 });
 
 socket.on("71_SERVER_LOG_OUT_SUCCESSFULLY", function(){
@@ -252,7 +260,14 @@ function enableChessBoard() {
     $("#passButton").prop("disabled", false);
 }
 
-
+function showWinner() {
+    if(time1 <= 0 || time1 < time2) {
+        $("#winner").html("Winner: Player 2")
+    } else {
+        $("#winner").html("Winner: Player 1")
+    }
+    $("#winner").show();
+}
 
 // ============================================================================ //
 // App.js
@@ -866,14 +881,14 @@ var app = new Vue({
             return colors[n - 1];
         },
         show_winner: function() {
-            console.log(this.score);
             if(this.score[1] > this.score[2]) {
-                alert("Winner: player 1!!!");
+                $("#winner").html("Winner: Player 1");
             } else if (this.score[1] < this.score[2]) {
-                alert("Winner: player 2!!!");
+                $("#winner").html("Winner: Player 2");
             } else {
-                alert("Draw!!!");
+                $("#winner").html("Draw");
             }
+            $("#winner").show();
         }
     }
 })

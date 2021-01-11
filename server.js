@@ -15,7 +15,7 @@ let accountStatus = [0, 0, 0, 0, 0];
 let roomList = [0, 0, 0, 0, 0];
 let roomReadyStatus = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]];
 let clientInRoom = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
-let inGame = false;
+let inGameList = [false, false, false, false, false];
 
 server.listen(3000);
 
@@ -60,6 +60,8 @@ io.on("connection", function(socket){
                 clientInRoom[currentRoom][1] = socket.clientName;
             }
         }
+        socket.currentRoom = currentRoom;
+
         // send list of players in room
         io.sockets.in(currentRoom).emit("11_SERVER_PLAYERS_IN_ROOM", clientInRoom[currentRoom])
 
@@ -76,7 +78,7 @@ io.on("connection", function(socket){
             if(roomReadyStatus[currentRoom][0] == 0){
                 roomReadyStatus[currentRoom][0] = 1;
                 if(roomReadyStatus[currentRoom][1] == 1){
-                    inGame = true;
+                    inGameList[currentRoom] = true;
                     io.sockets.in(currentRoom).emit("22_SERVER_GAME_START", clientInRoom[currentRoom][0]);    
                 } else {
                     io.sockets.in(currentRoom).emit("21_SERVER_READY", "#1Ready");
@@ -91,7 +93,7 @@ io.on("connection", function(socket){
             if(roomReadyStatus[currentRoom][1] == 0){
                 roomReadyStatus[currentRoom][1] = 1;
                 if(roomReadyStatus[currentRoom][0] == 1){
-                    inGame = true;
+                    inGameList[currentRoom] = true;
                     io.sockets.in(currentRoom).emit("22_SERVER_GAME_START", clientInRoom[currentRoom][0]);    
                 } else {
                     io.sockets.in(currentRoom).emit("21_SERVER_READY", "#2Ready");
@@ -116,23 +118,24 @@ io.on("connection", function(socket){
     });
 
     socket.on("42_CLIENT_END_GAME", function(currentRoom){
-        if(inGame) {
+        if(inGameList[currentRoom]) {
             unreadyClientInRoom(currentRoom);
             io.sockets.in(currentRoom).emit("43_SERVER_END_GAME");
-            inGame = false;
+            inGameList[currentRoom] = false;
         }
     });
     socket.on("44_CLIENT_TIME_END_GAME", function(currentRoom){
-        if(inGame) {
+        if(inGameList[currentRoom]) {
             unreadyClientInRoom(currentRoom);
             io.sockets.in(currentRoom).emit("45_SERVER_TIME_END_GAME");
-            inGame = false;
+            inGameList[currentRoom] = false;
         }
     });
 
     // receive that client want to leave room
     socket.on("60_CLIENT_LEAVE_ROOM", function(currentRoom){
         socket.leave(currentRoom);
+        socket.currentRoom = -1;
 
         // update roomList & clientInRoom
         roomList[currentRoom] -= 1;
@@ -154,6 +157,7 @@ io.on("connection", function(socket){
 
     // receive that client want to log out
     socket.on("70_CLIENT_LOG_OUT", function(){        
+        socket.currentRoom = -1;
         accountStatus[accountList.indexOf(socket.clientName)] = 0;
         socket.clientName = "";
         socket.emit("71_SERVER_LOG_OUT_SUCCESSFULLY");
@@ -169,6 +173,7 @@ io.on("connection", function(socket){
                     clientInRoom[i][1] = -1;
                 }
                 unreadyClientInRoom(i);
+                inGameList[i] = false;
                 roomList[i] -= 1;
                 // send to player2 in room that player1 leaved this room
                 io.sockets.in(i).emit("11_SERVER_PLAYERS_IN_ROOM", clientInRoom[i]);

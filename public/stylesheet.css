@@ -104,6 +104,9 @@ body {
 #passButton:hover:enabled {
     background-color: #ff0066;
 }
+#winner {
+    color: green;
+}
 
 body {
     font-family: 'Open Sans';
