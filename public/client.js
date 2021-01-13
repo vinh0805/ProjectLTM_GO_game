@@ -1,5 +1,5 @@
-// var socket = io("http://192.168.43.6:3000");
-var socket = io("http://localhost:3000");
+var socket = io("http://192.168.43.230:3000");
+// var socket = io("http://localhost:3000");
 
 const PLAYTIME = 20;
 
@@ -155,6 +155,7 @@ socket.on("41_BOARD_STATE", function(){
 
 // End game
 socket.on("43_SERVER_END_GAME", function(){
+    yourTurn = false;
     inGame = false;
     disableChessBoard();
     $("#readyButton").val("Ready");
@@ -162,6 +163,7 @@ socket.on("43_SERVER_END_GAME", function(){
     app.show_winner();
 });
 socket.on("45_SERVER_TIME_END_GAME", function(){
+    yourTurn = false;
     inGame = false;
     showWinner();
     $("#timeUpMessage").show();
